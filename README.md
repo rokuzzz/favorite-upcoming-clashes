@@ -3,7 +3,8 @@
 COMP.SE.110 Software Design — group assignment (group *remote-passing-grade*).
 
 A web app for Liiga ice hockey fans: pick a team and a time horizon and see its upcoming games — opponent, home or
-away, arena and start time in Finnish time. Weather forecasts and road weather cameras near the arena are next.
+away, arena, start time in Finnish time and the weather forecast at the arena. Road weather cameras near the arena
+are next.
 
 The core is a Python backend (FastAPI); the React frontend only displays its data.
 
@@ -15,7 +16,7 @@ The core is a Python backend (FastAPI); the React frontend only displays its dat
 | ✅ | choose how far ahead to look (7, 14 or 21 days) | I see only the period I am planning for |
 | ✅ | see the opponent, home or away, the arena and city, and the start time in Finnish time | I can plan going to the game |
 | ✅ | save my favourite team | the app opens with its games straight away |
-| 🔜 | see the weather forecast at the arena at game time (FMI) | I know how to dress and travel |
+| ✅ | see the weather forecast at the arena at game time (FMI) | I know how to dress and travel |
 | 🔜 | see the latest image from the road weather camera nearest to the arena (Digitraffic) | I see the road conditions on the way |
 | 🔜 | choose which extra data is shown | the page shows only what I care about |
 | 🔜 | see the data as a chart and the arenas on a map | I get the overview at a glance |
