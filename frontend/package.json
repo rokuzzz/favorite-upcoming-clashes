@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "gen:api": "cd ../backend && uv run python -m app.openapi ../frontend/openapi.json && cd ../frontend && npx -y openapi-typescript@7.13.0 openapi.json -o src/api/schema.ts"
+    "gen:api": "cd ../backend && uv run python -m app.openapi ../frontend/openapi.json && cd ../frontend && npx -y openapi-typescript@7.13.0 openapi.json -o src/api/schema.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -27,6 +29,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "oxlint": "^1.90.0",
+    "prettier": "^3.9.10",
     "shadcn": "^4.23.0",
     "tailwindcss": "^4.3.5",
     "typescript": "~7.0.2",
