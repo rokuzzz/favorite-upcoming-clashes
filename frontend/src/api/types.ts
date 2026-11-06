@@ -8,6 +8,7 @@ export type Team = Schemas['Team']
 export type Venue = Schemas['Venue']
 export type UpcomingMatch = Schemas['UpcomingMatch']
 export type MatchesResponse = Schemas['MatchesResponse']
+export type WeatherForecast = Schemas['WeatherForecast']
 // Used both as request body and response; the response variant (all fields present) is also a valid request.
 export type Preferences = Schemas['Preferences-Output']
 

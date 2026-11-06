@@ -45,8 +45,36 @@ class Match(ApiModel):
     ended: bool = False
 
 
+class ForecastPoint(ApiModel):
+    """One hourly value set from FMI. None means FMI returned NaN (no forecast yet)."""
+
+    time: datetime
+    temperature_c: float | None = None
+    precipitation_mm: float | None = None
+    wind_speed_ms: float | None = None
+    wind_direction_deg: float | None = None
+    weather_symbol: float | None = None
+
+
+class WeatherForecast(ApiModel):
+    """What the UI shows: either the values or available=False with a message."""
+
+    available: bool
+    message: str | None = None
+    time: datetime | None = None
+    temperature_c: float | None = None
+    precipitation_mm: float | None = None
+    wind_speed_ms: float | None = None
+    wind_direction_deg: float | None = None
+    weather_symbol: int | None = None
+
+    @classmethod
+    def unavailable(cls, message: str) -> "WeatherForecast":
+        return cls(available=False, message=message)
+
+
 class UpcomingMatch(ApiModel):
-    """A match seen from the favourite team's point of view."""
+    """A match seen from the chosen team's point of view, plus data from the requested data sources."""
 
     id: int
     start_utc: datetime
@@ -54,12 +82,21 @@ class UpcomingMatch(ApiModel):
     opponent: Team
     is_home: bool
     venue: Venue
+    weather: WeatherForecast | None = None  # filled by the "weather" data source
 
 
 class MatchesResponse(ApiModel):
     team: Team
     horizon_days: int
+    included: list[str]  # data sources that were requested, e.g. ["weather"]
     matches: list[UpcomingMatch]
+
+
+class DataSource(ApiModel):
+    """An optional data source the user can show or hide."""
+
+    key: str
+    label: str
 
 
 class Preferences(ApiModel):

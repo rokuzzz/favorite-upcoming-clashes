@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from app import config
 from app.container import Services
-from app.models import MatchesResponse, Preferences, Team
+from app.models import DataSource, MatchesResponse, Preferences, Team
 from app.services.match_service import MatchService, UnknownTeamError
 from app.services.settings_service import SettingsService
 
@@ -41,16 +41,23 @@ async def list_teams(matches: MatchServiceDep) -> list[Team]:
         raise HTTPException(502, "Liiga API is unavailable") from exc
 
 
+@router.get("/data-sources", response_model=list[DataSource])
+async def list_data_sources(matches: MatchServiceDep) -> list[DataSource]:
+    return matches.data_sources
+
+
 @router.get("/matches", response_model=MatchesResponse)
 async def list_matches(
     matches: MatchServiceDep,
     team: Annotated[str, Query(description="Liiga team id, e.g. 624554857:lukko")],
     days: Annotated[int, Query(description="Time horizon in days: 7, 14 or 21")] = 14,
+    include: Annotated[str, Query(description="Comma-separated data sources, e.g. weather")] = "",
 ) -> MatchesResponse:
     if days not in config.ALLOWED_HORIZONS:
         raise HTTPException(422, f"days must be one of {config.ALLOWED_HORIZONS}")
+    include_keys = {key.strip() for key in include.split(",") if key.strip()}
     try:
-        return await matches.get_upcoming_matches(team, days)
+        return await matches.get_upcoming_matches(team, days, include_keys)
     except UnknownTeamError as exc:
         raise HTTPException(404, f"Unknown team: {team}") from exc
     except httpx.HTTPError as exc:

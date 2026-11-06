@@ -38,6 +38,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/data-sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Data Sources */
+        get: operations["list_data_sources_api_data_sources_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/matches": {
         parameters: {
             query?: never;
@@ -77,6 +94,16 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * DataSource
+         * @description An optional data source the user can show or hide.
+         */
+        DataSource: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -87,6 +114,8 @@ export interface components {
             team: components["schemas"]["Team"];
             /** Horizondays */
             horizonDays: number;
+            /** Included */
+            included: string[];
             /** Matches */
             matches: components["schemas"]["UpcomingMatch"][];
         };
@@ -117,7 +146,7 @@ export interface components {
         };
         /**
          * UpcomingMatch
-         * @description A match seen from the favourite team's point of view.
+         * @description A match seen from the chosen team's point of view, plus data from the requested data sources.
          */
         UpcomingMatch: {
             /** Id */
@@ -136,6 +165,7 @@ export interface components {
             /** Ishome */
             isHome: boolean;
             venue: components["schemas"]["Venue"];
+            weather: components["schemas"]["WeatherForecast"] | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -160,6 +190,28 @@ export interface components {
             latitude: number | null;
             /** Longitude */
             longitude: number | null;
+        };
+        /**
+         * WeatherForecast
+         * @description What the UI shows: either the values or available=False with a message.
+         */
+        WeatherForecast: {
+            /** Available */
+            available: boolean;
+            /** Message */
+            message: string | null;
+            /** Time */
+            time: string | null;
+            /** Temperaturec */
+            temperatureC: number | null;
+            /** Precipitationmm */
+            precipitationMm: number | null;
+            /** Windspeedms */
+            windSpeedMs: number | null;
+            /** Winddirectiondeg */
+            windDirectionDeg: number | null;
+            /** Weathersymbol */
+            weatherSymbol: number | null;
         };
     };
     responses: never;
@@ -212,6 +264,26 @@ export interface operations {
             };
         };
     };
+    list_data_sources_api_data_sources_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataSource"][];
+                };
+            };
+        };
+    };
     list_matches_api_matches_get: {
         parameters: {
             query: {
@@ -219,6 +291,8 @@ export interface operations {
                 team: string;
                 /** @description Time horizon in days: 7, 14 or 21 */
                 days?: number;
+                /** @description Comma-separated data sources, e.g. weather */
+                include?: string;
             };
             header?: never;
             path?: never;

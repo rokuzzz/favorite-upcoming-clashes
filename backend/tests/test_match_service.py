@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from app.models import Match, Team, Venue
+from app.models import Match, Team, Venue, WeatherForecast
 from app.services.match_service import MatchService, UnknownTeamError, select_upcoming
 
 NOW = datetime(2026, 11, 6, 12, 0, tzinfo=UTC)
@@ -72,3 +72,60 @@ async def test_teams_are_sorted_by_name():
     teams = await MatchService(FakeLiigaRepository()).get_teams()
 
     assert [t.name for t in teams] == ["KALPA", "LUKKO", "TPS"]
+
+
+class FakeWeatherSource:
+    key = "weather"
+    label = "Fake weather"
+
+    def __init__(self) -> None:
+        self.asked_for: list[int] = []
+
+    async def fetch(self, match):
+        self.asked_for.append(match.id)
+        return WeatherForecast.unavailable(f"forecast for {match.id}")
+
+
+class BrokenSource:
+    key = "weather"
+    label = "Always fails"
+
+    async def fetch(self, match):
+        raise RuntimeError("FMI is down")
+
+
+async def test_requested_data_source_fills_its_field_for_every_match():
+    source = FakeWeatherSource()
+    service = MatchService(FakeLiigaRepository(), [source], clock=lambda: NOW)
+
+    response = await service.get_upcoming_matches("lukko", 7, include={"weather"})
+
+    assert response.included == ["weather"]
+    assert [m.weather.message for m in response.matches] == ["forecast for 1", "forecast for 2"]
+    assert sorted(source.asked_for) == [1, 2]
+
+
+async def test_data_sources_are_only_asked_when_requested():
+    source = FakeWeatherSource()
+    service = MatchService(FakeLiigaRepository(), [source], clock=lambda: NOW)
+
+    response = await service.get_upcoming_matches("lukko", 7)
+
+    assert response.included == []
+    assert source.asked_for == []
+    assert all(m.weather is None for m in response.matches)
+
+
+async def test_failing_data_source_does_not_break_the_match_list():
+    service = MatchService(FakeLiigaRepository(), [BrokenSource()], clock=lambda: NOW)
+
+    response = await service.get_upcoming_matches("lukko", 7, include={"weather"})
+
+    assert len(response.matches) == 2
+    assert all(m.weather is None for m in response.matches)
+
+
+def test_data_sources_are_listed_for_the_ui():
+    service = MatchService(FakeLiigaRepository(), [FakeWeatherSource()])
+
+    assert [(s.key, s.label) for s in service.data_sources] == [("weather", "Fake weather")]
