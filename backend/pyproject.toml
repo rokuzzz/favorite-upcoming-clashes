@@ -8,6 +8,14 @@ dependencies = [
     "uvicorn[standard]>=0.54.0",
 ]
 
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+# E/W: pycodestyle, F: pyflakes, I: import sorting, B: bugbear, UP: pyupgrade, SIM: simplify
+select = ["E", "W", "F", "I", "B", "UP", "SIM"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
@@ -17,4 +25,5 @@ filterwarnings = ["ignore::DeprecationWarning:starlette.*"]
 dev = [
     "httpx>=0.28.1",
     "pytest>=9.2.0",
+    "ruff>=0.17.4",
 ]
