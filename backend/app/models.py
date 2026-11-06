@@ -45,6 +45,17 @@ class Match(ApiModel):
     ended: bool = False
 
 
+class ForecastPoint(ApiModel):
+    """One hourly value set from FMI. None means FMI returned NaN (no forecast yet)."""
+
+    time: datetime
+    temperature_c: float | None = None
+    precipitation_mm: float | None = None
+    wind_speed_ms: float | None = None
+    wind_direction_deg: float | None = None
+    weather_symbol: float | None = None
+
+
 class UpcomingMatch(ApiModel):
     """A match seen from the favourite team's point of view."""
 
