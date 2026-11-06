@@ -1,0 +1,9 @@
+[project]
+name = "favorite-upcoming-clashes"
+version = "0.1.0"
+description = "Upcoming Liiga matches of your favourite team with FMI weather and Digitraffic road cameras"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.162.0",
+    "uvicorn[standard]>=0.54.0",
+]
