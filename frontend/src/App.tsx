@@ -1,18 +1,26 @@
 import { useState } from 'react'
 
-import { useMatches, useTeams } from '@/api/queries'
+import { useMatches, usePreferences, useSavePreferences, useTeams } from '@/api/queries'
 import type { Horizon } from '@/api/types'
-import { Controls } from '@/components/Controls'
-import { MatchCard } from '@/components/MatchCard'
+import { Controls, ControlsSkeleton } from '@/components/Controls'
+import { MatchCard, MatchCardSkeleton } from '@/components/MatchCard'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
 export default function App() {
-  const [teamId, setTeamId] = useState<string | null>(null)
+  const [chosenTeamId, setChosenTeamId] = useState<string | null>(null)
   const [horizon, setHorizon] = useState<Horizon>(14)
   const teams = useTeams()
+  const preferences = usePreferences()
+  const savePreferences = useSavePreferences()
+
+  const favouriteTeamId = preferences.data?.favouriteTeamId ?? null
+  // Until the user picks a team, show the saved favourite.
+  const teamId = chosenTeamId ?? favouriteTeamId
   const matches = useMatches(teamId, horizon)
+
+  const toggleFavourite = () => savePreferences.mutate({ favouriteTeamId: teamId === favouriteTeamId ? null : teamId })
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
@@ -28,22 +36,32 @@ export default function App() {
         </Alert>
       )}
 
-      {teams.isPending ? (
-        <Skeleton className="h-16 w-96" />
+      {savePreferences.error && (
+        <Alert variant="destructive">
+          <AlertTitle>Could not save the favourite team</AlertTitle>
+          <AlertDescription>{savePreferences.error.message}</AlertDescription>
+        </Alert>
+      )}
+
+      {teams.isPending || preferences.isPending ? (
+        <ControlsSkeleton />
       ) : (
         teams.data && (
           <Controls
             teams={teams.data}
             teamId={teamId}
+            favouriteTeamId={favouriteTeamId}
             horizon={horizon}
-            onTeamChange={setTeamId}
+            onTeamChange={setChosenTeamId}
+            onFavouriteToggle={toggleFavourite}
             onHorizonChange={setHorizon}
           />
         )
       )}
 
-      {teamId === null && (
-        <p className="text-muted-foreground">Choose your favourite team to see its upcoming games.</p>
+      {/* Wait for the saved favourite before asking the user to choose. */}
+      {!preferences.isPending && teamId === null && (
+        <p className="text-muted-foreground">Choose a team to see its upcoming games.</p>
       )}
 
       {matches.error && (
@@ -54,11 +72,14 @@ export default function App() {
       )}
 
       {teamId !== null && matches.isPending && (
-        <div className="grid gap-4 md:grid-cols-2">
-          {[0, 1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-36" />
-          ))}
-        </div>
+        <section className="flex flex-col gap-4" aria-busy>
+          <Skeleton className="h-7 w-80" />
+          <div className="grid gap-4 md:grid-cols-2">
+            {[0, 1, 2, 3].map((i) => (
+              <MatchCardSkeleton key={i} />
+            ))}
+          </div>
+        </section>
       )}
 
       {matches.data && (

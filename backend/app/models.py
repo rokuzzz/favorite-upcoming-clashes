@@ -60,3 +60,9 @@ class MatchesResponse(ApiModel):
     team: Team
     horizon_days: int
     matches: list[UpcomingMatch]
+
+
+class Preferences(ApiModel):
+    """What the user has saved. Owned by SettingsService."""
+
+    favourite_team_id: str | None = None

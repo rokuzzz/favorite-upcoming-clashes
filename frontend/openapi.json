@@ -101,6 +101,60 @@
           }
         }
       }
+    },
+    "/api/preferences": {
+      "get": {
+        "summary": "Get Preferences",
+        "operationId": "get_preferences_api_preferences_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preferences-Output"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Save Preferences",
+        "operationId": "save_preferences_api_preferences_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Preferences-Input"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preferences-Output"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -142,6 +196,45 @@
           "matches"
         ],
         "title": "MatchesResponse"
+      },
+      "Preferences-Input": {
+        "properties": {
+          "favouriteTeamId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Favouriteteamid"
+          }
+        },
+        "type": "object",
+        "title": "Preferences",
+        "description": "What the user has saved. Owned by SettingsService."
+      },
+      "Preferences-Output": {
+        "properties": {
+          "favouriteTeamId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Favouriteteamid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "favouriteTeamId"
+        ],
+        "title": "Preferences",
+        "description": "What the user has saved. Owned by SettingsService."
       },
       "Team": {
         "properties": {
