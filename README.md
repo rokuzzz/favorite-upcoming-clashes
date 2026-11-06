@@ -30,10 +30,11 @@ uv sync                      # create .venv and install dependencies
 uv run pre-commit install    # enable git hooks (once per clone)
 ```
 
-Run the server:
+Run the server (auto-reloads on code changes):
 
 ```bash
-uv run uvicorn app.main:app --reload --port 8000
+uv run python -m app
+# same as: uv run uvicorn app.main:app --reload --port 8000
 ```
 
 - Health check: http://localhost:8000/api/health
