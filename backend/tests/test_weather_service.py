@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from app.models import ForecastPoint
+from app.models import ForecastPoint, Team, UpcomingMatch, Venue
 from app.repositories.cache import TtlCache
 from app.repositories.fmi_weather_repository import FmiWeatherRepository
 from app.services.weather_service import FORECAST_NOT_AVAILABLE, WeatherService, select_forecast_hour
@@ -72,3 +72,20 @@ async def test_games_at_the_same_rink_and_hour_share_one_request():
     await service.get_forecast(*RAUMA, at(16, 0))
 
     assert len(client.requests) == 1
+
+
+async def test_match_without_arena_coordinates_has_no_forecast():
+    service, client = make_service([])
+    match = UpcomingMatch(
+        id=1,
+        start_utc=at(16),
+        start_local=at(16),
+        opponent=Team(id="tps", name="TPS"),
+        is_home=True,
+        venue=Venue(name="Unknown venue", city=""),
+    )
+
+    forecast = await service.fetch(match)
+
+    assert forecast.available is False
+    assert client.requests == []

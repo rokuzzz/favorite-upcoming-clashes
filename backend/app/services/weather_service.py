@@ -1,17 +1,26 @@
 from collections.abc import Iterable
 from datetime import datetime, timedelta
 
-from app.models import ForecastPoint, WeatherForecast
+from app.models import ForecastPoint, UpcomingMatch, WeatherForecast
 from app.repositories.fmi_weather_repository import FmiWeatherRepository
 
 FORECAST_NOT_AVAILABLE = "Forecast not yet available"
 
 
 class WeatherService:
-    """FMI forecast for a place at the hour a match starts."""
+    """FMI forecast at the arena for the hour the match starts. A MatchEnricher data source."""
+
+    key = "weather"
+    label = "Weather forecast (FMI)"
 
     def __init__(self, repository: FmiWeatherRepository) -> None:
         self._repository = repository
+
+    async def fetch(self, match: UpcomingMatch) -> WeatherForecast:
+        venue = match.venue
+        if venue.latitude is None or venue.longitude is None:
+            return WeatherForecast.unavailable("Arena location unknown")
+        return await self.get_forecast(venue.latitude, venue.longitude, match.start_utc)
 
     async def get_forecast(self, latitude: float, longitude: float, at: datetime) -> WeatherForecast:
         hour = at.replace(minute=0, second=0, microsecond=0)

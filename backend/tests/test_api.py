@@ -7,7 +7,7 @@ from app.main import create_app
 from app.repositories.preferences_repository import PreferencesRepository
 from app.services.match_service import MatchService
 from app.services.settings_service import SettingsService
-from tests.test_match_service import NOW, FakeLiigaRepository
+from tests.test_match_service import NOW, FakeLiigaRepository, FakeWeatherSource
 
 
 class BrokenLiigaRepository:
@@ -17,7 +17,7 @@ class BrokenLiigaRepository:
 
 def make_services(tmp_path, liiga=None) -> Services:
     return Services(
-        match_service=MatchService(liiga or FakeLiigaRepository(), clock=lambda: NOW),
+        match_service=MatchService(liiga or FakeLiigaRepository(), [FakeWeatherSource()], clock=lambda: NOW),
         settings_service=SettingsService(PreferencesRepository(tmp_path / "preferences.json")),
     )
 
@@ -71,3 +71,18 @@ def test_preferences_start_empty_and_saved_favourite_is_returned(client):
     assert saved.status_code == 200
     assert client.get("/api/preferences").json() == {"favouriteTeamId": "lukko"}
     assert client.put("/api/preferences", json={"favouriteTeamId": None}).json() == {"favouriteTeamId": None}
+
+
+def test_data_sources_endpoint(client):
+    assert client.get("/api/data-sources").json() == [{"key": "weather", "label": "Fake weather"}]
+
+
+def test_matches_include_weather_only_when_asked(client):
+    without = client.get("/api/matches", params={"team": "lukko", "days": 7}).json()
+    with_weather = client.get("/api/matches", params={"team": "lukko", "days": 7, "include": "weather"}).json()
+    unknown = client.get("/api/matches", params={"team": "lukko", "days": 7, "include": "weather,horoscope"}).json()
+
+    assert (without["included"], without["matches"][0]["weather"]) == ([], None)
+    assert with_weather["included"] == ["weather"]
+    assert with_weather["matches"][0]["weather"]["available"] is False
+    assert unknown["included"] == ["weather"]  # unknown sources are ignored

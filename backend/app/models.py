@@ -74,7 +74,7 @@ class WeatherForecast(ApiModel):
 
 
 class UpcomingMatch(ApiModel):
-    """A match seen from the favourite team's point of view."""
+    """A match seen from the chosen team's point of view, plus data from the requested data sources."""
 
     id: int
     start_utc: datetime
@@ -82,12 +82,21 @@ class UpcomingMatch(ApiModel):
     opponent: Team
     is_home: bool
     venue: Venue
+    weather: WeatherForecast | None = None  # filled by the "weather" data source
 
 
 class MatchesResponse(ApiModel):
     team: Team
     horizon_days: int
+    included: list[str]  # data sources that were requested, e.g. ["weather"]
     matches: list[UpcomingMatch]
+
+
+class DataSource(ApiModel):
+    """An optional data source the user can show or hide."""
+
+    key: str
+    label: str
 
 
 class Preferences(ApiModel):
