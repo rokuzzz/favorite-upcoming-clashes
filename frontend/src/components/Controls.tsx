@@ -4,6 +4,7 @@ import type { Horizon, Team } from '@/api/types'
 import { HORIZONS } from '@/api/types'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { cn } from '@/lib/utils'
 
@@ -80,6 +81,25 @@ export function Controls({
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
+      </div>
+    </div>
+  )
+}
+
+// Same shape and size as Controls, so nothing jumps when the real controls appear.
+export function ControlsSkeleton() {
+  return (
+    <div className="flex flex-wrap items-end gap-6" aria-hidden>
+      <div className="flex flex-col gap-2">
+        <Skeleton className="h-5 w-10" />
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-8 w-56 rounded-lg" />
+          <Skeleton className="size-8 rounded-lg" />
+        </div>
+      </div>
+      <div className="flex flex-col gap-2">
+        <Skeleton className="h-5 w-24" />
+        <Skeleton className="h-8 w-60 rounded-lg" />
       </div>
     </div>
   )

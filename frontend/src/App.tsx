@@ -2,8 +2,8 @@ import { useState } from 'react'
 
 import { useMatches, usePreferences, useSavePreferences, useTeams } from '@/api/queries'
 import type { Horizon } from '@/api/types'
-import { Controls } from '@/components/Controls'
-import { MatchCard } from '@/components/MatchCard'
+import { Controls, ControlsSkeleton } from '@/components/Controls'
+import { MatchCard, MatchCardSkeleton } from '@/components/MatchCard'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
@@ -44,7 +44,7 @@ export default function App() {
       )}
 
       {teams.isPending || preferences.isPending ? (
-        <Skeleton className="h-16 w-96" />
+        <ControlsSkeleton />
       ) : (
         teams.data && (
           <Controls
@@ -72,11 +72,14 @@ export default function App() {
       )}
 
       {teamId !== null && matches.isPending && (
-        <div className="grid gap-4 md:grid-cols-2">
-          {[0, 1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-36" />
-          ))}
-        </div>
+        <section className="flex flex-col gap-4" aria-busy>
+          <Skeleton className="h-7 w-80" />
+          <div className="grid gap-4 md:grid-cols-2">
+            {[0, 1, 2, 3].map((i) => (
+              <MatchCardSkeleton key={i} />
+            ))}
+          </div>
+        </section>
       )}
 
       {matches.data && (
