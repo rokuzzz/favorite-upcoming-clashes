@@ -1,5 +1,6 @@
 """Central configuration: external API endpoints, season and cache lifetimes."""
 
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 LIIGA_BASE_URL = "https://www.liiga.fi/api/v2"
@@ -19,3 +20,6 @@ ALLOWED_HORIZONS = (7, 14, 21)
 # Cache lifetimes (seconds)
 TEAMS_TTL_S = 6 * 3600
 SCHEDULE_TTL_S = 15 * 60
+
+# User preferences (favourite team) are stored in this JSON file.
+PREFERENCES_FILE = Path(__file__).resolve().parent.parent / "data" / "preferences.json"

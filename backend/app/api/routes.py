@@ -7,8 +7,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from app import config
 from app.container import Services
-from app.models import MatchesResponse, Team
+from app.models import MatchesResponse, Preferences, Team
 from app.services.match_service import MatchService, UnknownTeamError
+from app.services.settings_service import SettingsService
 
 router = APIRouter(prefix="/api")
 
@@ -18,7 +19,13 @@ def get_match_service(request: Request) -> MatchService:
     return services.match_service
 
 
+def get_settings_service(request: Request) -> SettingsService:
+    services: Services = request.app.state.services
+    return services.settings_service
+
+
 MatchServiceDep = Annotated[MatchService, Depends(get_match_service)]
+SettingsServiceDep = Annotated[SettingsService, Depends(get_settings_service)]
 
 
 @router.get("/health")
@@ -48,3 +55,14 @@ async def list_matches(
         raise HTTPException(404, f"Unknown team: {team}") from exc
     except httpx.HTTPError as exc:
         raise HTTPException(502, "Liiga API is unavailable") from exc
+
+
+# Plain `def` (not async): FastAPI runs these in a worker thread, so the file I/O does not block the event loop.
+@router.get("/preferences", response_model=Preferences)
+def get_preferences(settings: SettingsServiceDep) -> Preferences:
+    return settings.get()
+
+
+@router.put("/preferences", response_model=Preferences)
+def save_preferences(preferences: Preferences, settings: SettingsServiceDep) -> Preferences:
+    return settings.save(preferences)

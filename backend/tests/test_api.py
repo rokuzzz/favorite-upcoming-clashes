@@ -4,7 +4,9 @@ from fastapi.testclient import TestClient
 
 from app.container import Services
 from app.main import create_app
+from app.repositories.preferences_repository import PreferencesRepository
 from app.services.match_service import MatchService
+from app.services.settings_service import SettingsService
 from tests.test_match_service import NOW, FakeLiigaRepository
 
 
@@ -13,10 +15,16 @@ class BrokenLiigaRepository:
         raise httpx.ConnectError("Liiga is down")
 
 
+def make_services(tmp_path, liiga=None) -> Services:
+    return Services(
+        match_service=MatchService(liiga or FakeLiigaRepository(), clock=lambda: NOW),
+        settings_service=SettingsService(PreferencesRepository(tmp_path / "preferences.json")),
+    )
+
+
 @pytest.fixture
-def client():
-    services = Services(match_service=MatchService(FakeLiigaRepository(), clock=lambda: NOW))
-    with TestClient(create_app(services)) as client:
+def client(tmp_path):
+    with TestClient(create_app(make_services(tmp_path))) as client:
         yield client
 
 
@@ -50,7 +58,16 @@ def test_matches_rejects_bad_input(client, params, status):
     assert client.get("/api/matches", params=params).status_code == status
 
 
-def test_liiga_outage_becomes_502():
-    services = Services(match_service=MatchService(BrokenLiigaRepository()))
-    with TestClient(create_app(services)) as client:
+def test_liiga_outage_becomes_502(tmp_path):
+    with TestClient(create_app(make_services(tmp_path, BrokenLiigaRepository()))) as client:
         assert client.get("/api/teams").status_code == 502
+
+
+def test_preferences_start_empty_and_saved_favourite_is_returned(client):
+    assert client.get("/api/preferences").json() == {"favouriteTeamId": None}
+
+    saved = client.put("/api/preferences", json={"favouriteTeamId": "lukko"})
+
+    assert saved.status_code == 200
+    assert client.get("/api/preferences").json() == {"favouriteTeamId": "lukko"}
+    assert client.put("/api/preferences", json={"favouriteTeamId": None}).json() == {"favouriteTeamId": None}
