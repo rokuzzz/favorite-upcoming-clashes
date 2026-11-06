@@ -4,7 +4,7 @@ import type { UpcomingMatch } from '@/api/types'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatMatchTime } from '@/lib/format'
+import { formatMatchTime } from './format'
 
 // Presentational only: everything it shows comes in through props.
 export function MatchCard({ match }: { match: UpcomingMatch }) {
