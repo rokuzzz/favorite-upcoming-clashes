@@ -26,8 +26,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   getTeams: () => request<Team[]>('/teams'),
-  getMatches: (teamId: string, days: Horizon) =>
-    request<MatchesResponse>(`/matches?${new URLSearchParams({ team: teamId, days: String(days) })}`),
+  getMatches: (teamId: string, days: Horizon, include: string[] = []) =>
+    request<MatchesResponse>(
+      `/matches?${new URLSearchParams({ team: teamId, days: String(days), include: include.join(',') })}`,
+    ),
   getPreferences: () => request<Preferences>('/preferences'),
   savePreferences: (preferences: Preferences) =>
     request<Preferences>('/preferences', { method: 'PUT', body: JSON.stringify(preferences) }),

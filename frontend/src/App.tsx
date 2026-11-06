@@ -10,6 +10,9 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
+// Optional data loaded with every match. Becomes the user's choice when data selection is added.
+const DATA_SOURCES = ['weather']
+
 export default function App() {
   const [chosenTeamId, setChosenTeamId] = useState<string | null>(null)
   const [horizon, setHorizon] = useState<Horizon>(14)
@@ -20,7 +23,7 @@ export default function App() {
   const favouriteTeamId = preferences.data?.favouriteTeamId ?? null
   // Until the user picks a team, show the saved favourite.
   const teamId = chosenTeamId ?? favouriteTeamId
-  const matches = useMatches(teamId, horizon)
+  const matches = useMatches(teamId, horizon, DATA_SOURCES)
 
   const toggleFavourite = () => savePreferences.mutate({ favouriteTeamId: teamId === favouriteTeamId ? null : teamId })
 

@@ -49,6 +49,28 @@
         }
       }
     },
+    "/api/data-sources": {
+      "get": {
+        "summary": "List Data Sources",
+        "operationId": "list_data_sources_api_data_sources_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DataSource"
+                  },
+                  "type": "array",
+                  "title": "Response List Data Sources Api Data Sources Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/matches": {
       "get": {
         "summary": "List Matches",
@@ -76,6 +98,18 @@
               "title": "Days"
             },
             "description": "Time horizon in days: 7, 14 or 21"
+          },
+          {
+            "name": "include",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated data sources, e.g. weather",
+              "default": "",
+              "title": "Include"
+            },
+            "description": "Comma-separated data sources, e.g. weather"
           }
         ],
         "responses": {
@@ -159,6 +193,25 @@
   },
   "components": {
     "schemas": {
+      "DataSource": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "DataSource",
+        "description": "An optional data source the user can show or hide."
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -181,6 +234,13 @@
             "type": "integer",
             "title": "Horizondays"
           },
+          "included": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Included"
+          },
           "matches": {
             "items": {
               "$ref": "#/components/schemas/UpcomingMatch"
@@ -193,6 +253,7 @@
         "required": [
           "team",
           "horizonDays",
+          "included",
           "matches"
         ],
         "title": "MatchesResponse"
@@ -291,6 +352,16 @@
           },
           "venue": {
             "$ref": "#/components/schemas/Venue"
+          },
+          "weather": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WeatherForecast"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -300,10 +371,11 @@
           "startLocal",
           "opponent",
           "isHome",
-          "venue"
+          "venue",
+          "weather"
         ],
         "title": "UpcomingMatch",
-        "description": "A match seen from the favourite team's point of view."
+        "description": "A match seen from the chosen team's point of view, plus data from the requested data sources."
       },
       "ValidationError": {
         "properties": {
@@ -386,6 +458,105 @@
           "longitude"
         ],
         "title": "Venue"
+      },
+      "WeatherForecast": {
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time"
+          },
+          "temperatureC": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperaturec"
+          },
+          "precipitationMm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precipitationmm"
+          },
+          "windSpeedMs": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Windspeedms"
+          },
+          "windDirectionDeg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Winddirectiondeg"
+          },
+          "weatherSymbol": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weathersymbol"
+          }
+        },
+        "type": "object",
+        "required": [
+          "available",
+          "message",
+          "time",
+          "temperatureC",
+          "precipitationMm",
+          "windSpeedMs",
+          "windDirectionDeg",
+          "weatherSymbol"
+        ],
+        "title": "WeatherForecast",
+        "description": "What the UI shows: either the values or available=False with a message."
       }
     }
   }
