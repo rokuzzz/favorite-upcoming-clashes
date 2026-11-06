@@ -1,0 +1,5 @@
+# Generated or managed by tools
+dist
+openapi.json
+package-lock.json
+src/api/schema.ts

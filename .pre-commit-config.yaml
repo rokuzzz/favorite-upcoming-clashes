@@ -23,6 +23,22 @@ repos:
         args: [--fix]
       - id: ruff-format
 
+  # Frontend: tools from frontend/node_modules (run `npm install` in frontend/ first)
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+        entry: npm --prefix frontend exec -- prettier --write --ignore-unknown
+        language: system
+        files: ^frontend/
+        exclude: ^frontend/(openapi\.json|package-lock\.json|src/api/schema\.ts)$
+      - id: oxlint
+        name: oxlint
+        entry: npm --prefix frontend exec -- oxlint -c frontend/.oxlintrc.json --deny-warnings
+        language: system
+        files: ^frontend/src/.*\.(ts|tsx)$
+        exclude: ^frontend/src/(components/ui/|api/schema\.ts)
+
   # Commit messages must follow Conventional Commits: type(scope): description
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.5.0
