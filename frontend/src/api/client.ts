@@ -1,5 +1,5 @@
 // The only module that talks to the backend. In development Vite proxies /api to FastAPI.
-import type { Horizon, MatchesResponse, Team } from './types'
+import type { Horizon, MatchesResponse, Preferences, Team } from './types'
 
 export class ApiError extends Error {
   readonly status: number
@@ -10,8 +10,11 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string): Promise<T> {
-  const response = await fetch(`/api${path}`)
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(`/api${path}`, {
+    ...init,
+    headers: { 'Content-Type': 'application/json', ...init?.headers },
+  })
   if (!response.ok) {
     // FastAPI puts the error message into `detail`
     const body = await response.json().catch(() => null)
@@ -25,4 +28,7 @@ export const api = {
   getTeams: () => request<Team[]>('/teams'),
   getMatches: (teamId: string, days: Horizon) =>
     request<MatchesResponse>(`/matches?${new URLSearchParams({ team: teamId, days: String(days) })}`),
+  getPreferences: () => request<Preferences>('/preferences'),
+  savePreferences: (preferences: Preferences) =>
+    request<Preferences>('/preferences', { method: 'PUT', body: JSON.stringify(preferences) }),
 }

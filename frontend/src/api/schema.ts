@@ -55,6 +55,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Preferences */
+        get: operations["get_preferences_api_preferences_get"];
+        /** Save Preferences */
+        put: operations["save_preferences_api_preferences_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -71,6 +89,22 @@ export interface components {
             horizonDays: number;
             /** Matches */
             matches: components["schemas"]["UpcomingMatch"][];
+        };
+        /**
+         * Preferences
+         * @description What the user has saved. Owned by SettingsService.
+         */
+        "Preferences-Input": {
+            /** Favouriteteamid */
+            favouriteTeamId?: string | null;
+        };
+        /**
+         * Preferences
+         * @description What the user has saved. Owned by SettingsService.
+         */
+        "Preferences-Output": {
+            /** Favouriteteamid */
+            favouriteTeamId: string | null;
         };
         /** Team */
         Team: {
@@ -199,6 +233,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MatchesResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_preferences_api_preferences_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Preferences-Output"];
+                };
+            };
+        };
+    };
+    save_preferences_api_preferences_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Preferences-Input"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Preferences-Output"];
                 };
             };
             /** @description Validation Error */
