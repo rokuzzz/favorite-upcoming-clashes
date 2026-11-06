@@ -1,0 +1,31 @@
+# Git hooks for the whole repository. Setup once per clone: `cd backend && uv run pre-commit install`
+default_install_hook_types: [pre-commit, commit-msg]
+# Hooks without an explicit `stages` run only before the commit, not again on the message
+default_stages: [pre-commit]
+
+repos:
+  # Basic file hygiene
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+
+  # Python: lint (with autofix) and format
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.4
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  # Commit messages must follow Conventional Commits: type(scope): description
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.5.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
