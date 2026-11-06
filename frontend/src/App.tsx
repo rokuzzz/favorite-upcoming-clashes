@@ -1,23 +1,50 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
-import { Badge } from '@/components/ui/badge'
+import { useTeams } from '@/api/queries'
+import type { Horizon } from '@/api/types'
+import { Controls } from '@/components/Controls'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function App() {
-  const [status, setStatus] = useState('checking…')
+  const [teamId, setTeamId] = useState<string | null>(null)
+  const [horizon, setHorizon] = useState<Horizon>(14)
+  const teams = useTeams()
 
-  useEffect(() => {
-    fetch('/api/health')
-      .then((response) => response.json())
-      .then((data: { status: string }) => setStatus(data.status))
-      .catch(() => setStatus('backend not reachable'))
-  }, [])
+  const selectedTeam = teams.data?.find((team) => team.id === teamId)
 
   return (
-    <main className="mx-auto flex max-w-5xl flex-col gap-2 p-6">
-      <h1 className="text-3xl font-bold">Favorite Upcoming Clashes</h1>
-      <p className="flex items-center gap-2 text-muted-foreground">
-        Backend status:
-        <Badge variant={status === 'ok' ? 'default' : 'destructive'}>{status}</Badge>
+    <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
+      <header>
+        <h1 className="text-3xl font-bold">Favorite Upcoming Clashes</h1>
+        <p className="text-muted-foreground">Upcoming Liiga games of your favourite team.</p>
+      </header>
+
+      {teams.error && (
+        <Alert variant="destructive">
+          <AlertTitle>Could not load teams</AlertTitle>
+          <AlertDescription>{teams.error.message}</AlertDescription>
+        </Alert>
+      )}
+
+      {teams.isPending ? (
+        <Skeleton className="h-16 w-96" />
+      ) : (
+        teams.data && (
+          <Controls
+            teams={teams.data}
+            teamId={teamId}
+            horizon={horizon}
+            onTeamChange={setTeamId}
+            onHorizonChange={setHorizon}
+          />
+        )
+      )}
+
+      <p className="text-muted-foreground">
+        {selectedTeam
+          ? `Selected: ${selectedTeam.name}, next ${horizon} days`
+          : 'Choose your favourite team to see its upcoming games.'}
       </p>
     </main>
   )
