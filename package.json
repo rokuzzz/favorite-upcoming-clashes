@@ -1,0 +1,16 @@
+{
+  "name": "favorite-upcoming-clashes",
+  "private": true,
+  "description": "Shortcuts for the whole project: backend (Python, uv) and frontend (React, Vite)",
+  "scripts": {
+    "setup": "cd backend && uv sync && uv run pre-commit install && cd ../frontend && npm install",
+    "dev": "concurrently --kill-others --names backend,frontend --prefix-colors blue,green \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:backend": "cd backend && uv run python -m app",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "test": "cd backend && uv run pytest",
+    "gen:api": "npm --prefix frontend run gen:api"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}
