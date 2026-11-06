@@ -8,3 +8,7 @@ export type Team = Schemas['Team']
 export type Venue = Schemas['Venue']
 export type UpcomingMatch = Schemas['UpcomingMatch']
 export type MatchesResponse = Schemas['MatchesResponse']
+
+// Allowed values of `days` (backend: config.ALLOWED_HORIZONS). The schema only knows it is an integer.
+export const HORIZONS = [7, 14, 21] as const
+export type Horizon = (typeof HORIZONS)[number]
