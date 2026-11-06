@@ -23,6 +23,7 @@ ALLOWED_HORIZONS = (7, 14, 21)
 # Cache lifetimes (seconds)
 TEAMS_TTL_S = 6 * 3600
 SCHEDULE_TTL_S = 15 * 60
+FORECAST_TTL_S = 60 * 60  # fresh enough for games later today, few requests to FMI
 
 # User preferences (favourite team) are stored in this JSON file.
 PREFERENCES_FILE = Path(__file__).resolve().parent.parent / "data" / "preferences.json"
