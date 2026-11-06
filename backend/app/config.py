@@ -1,5 +1,7 @@
 """Central configuration: external API endpoints, season and cache lifetimes."""
 
+from zoneinfo import ZoneInfo
+
 LIIGA_BASE_URL = "https://www.liiga.fi/api/v2"
 LIIGA_SEASON = 2027  # season 2026-27 is named after the year it ends
 LIIGA_TOURNAMENT = "runkosarja"  # regular season
@@ -8,6 +10,11 @@ LIIGA_TOURNAMENT = "runkosarja"  # regular season
 BROWSER_USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
 )
+
+HTTP_TIMEOUT_S = 20.0
+LOCAL_TZ = ZoneInfo("Europe/Helsinki")
+
+ALLOWED_HORIZONS = (7, 14, 21)
 
 # Cache lifetimes (seconds)
 TEAMS_TTL_S = 6 * 3600

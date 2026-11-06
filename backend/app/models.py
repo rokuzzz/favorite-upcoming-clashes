@@ -41,3 +41,20 @@ class Match(ApiModel):
     venue: Venue
     started: bool = False
     ended: bool = False
+
+
+class UpcomingMatch(ApiModel):
+    """A match seen from the favourite team's point of view."""
+
+    id: int
+    start_utc: datetime
+    start_local: datetime
+    opponent: Team
+    is_home: bool
+    venue: Venue
+
+
+class MatchesResponse(ApiModel):
+    team: Team
+    horizon_days: int
+    matches: list[UpcomingMatch]
